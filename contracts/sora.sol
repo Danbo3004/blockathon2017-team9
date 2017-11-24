@@ -42,6 +42,7 @@ contract sora is mortal {
 	address public beneficiary;
 
 	event NewDonor(address _donor, uint _donationAfterFee, uint _fee);
+	event RoundEnded(uint _donationSum);
 
 	function sora() {
 		fee = 0 ether;
@@ -64,10 +65,17 @@ contract sora is mortal {
 		// this is to check whether to end round and start next round
 		if(maxDonors == numDonors){
 			endRoundAndStartNextRound();
+		}else{
+			
 		}
 	}
 
 	function endRoundAndStartNextRound() internal {
-		
+		numRound++;
+		RoundEnded(donationSum);
+	}
+
+	function getCurrentFund() returns(uint) {
+		return donationSum;
 	}
 }
