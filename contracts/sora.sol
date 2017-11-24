@@ -1,3 +1,4 @@
+// https://github.com/cillionaire/cillionaire2
 pragma solidity ^0.4.4;
 
 contract owned {
@@ -66,7 +67,7 @@ contract sora is mortal {
 		if(maxDonors == numDonors){
 			endRoundAndStartNextRound();
 		}else{
-			
+
 		}
 	}
 
