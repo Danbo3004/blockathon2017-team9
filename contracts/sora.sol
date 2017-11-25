@@ -27,7 +27,7 @@ contract mortal is owned {
     }
 }
 
-contract sora is mortal {
+contract Sora is mortal {
 
 	uint public startTimestamp;
     uint public endTimestamp;
@@ -36,47 +36,46 @@ contract sora is mortal {
     uint public donation;
     uint public fee;
 	uint public amountDonation;
-	uint public donationSum;
+	uint[] public donationSum;
 	uint public numDonors;
-	uint public numRound;
-	address[] public donors;
+	uint public currentRound;
+	address[][] public donors;
 	address public beneficiary;
 
 	event NewDonor(address _donor, uint _donationAfterFee, uint _fee);
 	event RoundEnded(uint _donationSum);
 
-	function sora() {
+	function Sora() {
 		fee = 0 ether;
 		duration = 1 days;
 		maxDonors = 4;
 		amountDonation = 10 ether;
-		donationSum = 0;
 		numDonors = 0;
-		numRound = 1;
+		currentRound = 0;
+		donationSum[currentRound] = 0;
 	}
 
 	function depositFund() external payable {
 		require(msg.value <= amountDonation);
 		uint amountAfterFee = msg.value - fee;
-		donationSum += amountAfterFee;
+		donationSum[currentRound] += amountAfterFee;
 
-		donors[numDonors++] = msg.sender;
+		donors[currentRound][numDonors++] = msg.sender;
 		NewDonor(msg.sender, amountAfterFee, fee);
 
 		// this is to check whether to end round and start next round
-		if(maxDonors == numDonors){
+		if(maxDonors == (numDonors + 1)) {
 			endRoundAndStartNextRound();
-		}else{
-
 		}
 	}
 
 	function endRoundAndStartNextRound() internal {
-		numRound++;
-		RoundEnded(donationSum);
+		currentRound++;
+		numDonors = 0;
+		RoundEnded(donationSum[currentRound]);
 	}
 
-	function getCurrentFund() returns(uint) {
-		return donationSum;
+	function getCurrentFund(uint round) returns(uint) {
+		return donationSum[round];
 	}
 }
