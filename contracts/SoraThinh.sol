@@ -1,5 +1,5 @@
 // https://github.com/cillionaire/cillionaire2
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.17;
 
 contract owned {
 
@@ -61,7 +61,7 @@ contract Sora is mortal {
 		amountDonation = 10 ether;
 		numDonors = 0;
 		currentRound = 0;
-		donationSum[currentRound] = 0;
+		//donationSum[currentRound] = 0;
 	}
 
 	function depositFund() external payable {
@@ -85,7 +85,7 @@ contract Sora is mortal {
 	}
 
 	// send payment back to the beneficially
-	function calculateAndSendCashForWinner(Donor[] _donors) {
+	function calculateAndSendCashForWinner(Donor[] _donors) internal {
 	    Donor memory lowestBidDonor;
       lowestBidDonor = getMinDonor(_donors);
 

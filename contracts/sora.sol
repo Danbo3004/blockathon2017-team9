@@ -52,12 +52,20 @@ contract Sora is mortal {
 	function Sora() {
 		fee = 0 ether;
 		duration = 1 days;
-		maxDonors = 4;
+		maxDonors = 3;
 		amountDonation = 10 ether;
 		numDonors = 0;
 		currentRound = 0;
-		donationSum[currentRound] = 0;
+		//donationSum[currentRound] = 0;
 	}
+
+	function getMaxDonors() returns(uint) {
+		return maxDonors;
+	}
+
+	function getAmountDonation() returns(uint) {
+		return amountDonation;
+ 	}
 
 	function depositFund() external payable {
 		require(msg.value <= amountDonation);
@@ -111,7 +119,7 @@ contract Sora is mortal {
   function getMinNumber(uint[] numbers) internal returns(uint){
     var minNum = uint(0);
     for (uint i=0;i<numbers.length;i++){
-      if (minNum > numbers[i]){
+      if (minNum > numbers[i]) {
         minNum = numbers[i];
       }
     }

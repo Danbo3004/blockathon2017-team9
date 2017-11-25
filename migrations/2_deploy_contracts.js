@@ -1,4 +1,4 @@
-var Sora = artifacts.require("./Sora.sol");
+var Sora = artifacts.require("sora.sol");
 var SoraThinh = artifacts.require("SoraThinh.sol");
 
 module.exports = function(deployer) {

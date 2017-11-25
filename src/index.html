@@ -1,62 +1,178 @@
+<!-- I put Lucas' login.html here (Juan) -->
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Pete's Pet Shop</title>
-
-    <!-- Bootstrap -->
-    <!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+    <title>SORA Lending</title>
     <link rel="stylesheet" media="screen" href="//bootstrapdocs.com/v3.3.0/docs/dist/css/bootstrap.min.css" />
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <style>
+      body {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+
+      .header,
+      .marketing,
+      .footer {
+        padding-right: 15px;
+        padding-left: 15px;
+      }
+
+      /* Custom page header */
+      .header {
+        border-bottom: 1px solid #e5e5e5;
+      }
+      /* Make the masthead heading the same height as the navigation */
+      .header h3 {
+        padding-bottom: 19px;
+        margin-top: 0;
+        margin-bottom: 0;
+        line-height: 40px;
+      }
+
+      /* Custom page footer */
+      .footer {
+        padding-top: 19px;
+        color: #777;
+        border-top: 1px solid #e5e5e5;
+      }
+
+      /* Customize container */
+      @media (min-width: 768px) {
+        .container {
+          max-width: 730px;
+        }
+      }
+      .container-narrow > hr {
+        margin: 30px 0;
+      }
+
+      /* Main marketing message and sign up button */
+      .jumbotron {
+        text-align: center;
+        border-bottom: 1px solid #e5e5e5;
+      }
+      .jumbotron .btn {
+        padding: 14px 24px;
+        font-size: 21px;
+      }
+
+      /* Supporting marketing content */
+      .marketing {
+        margin: 40px 0;
+      }
+      .marketing p + h4 {
+        margin-top: 28px;
+      }
+
+      /* Responsive: Portrait tablets and up */
+      @media screen and (min-width: 768px) {
+        /* Remove the padding we set earlier */
+        .header,
+        .marketing,
+        .footer {
+          padding-right: 0;
+          padding-left: 0;
+        }
+        /* Space out the masthead */
+        .header {
+          margin-bottom: 30px;
+        }
+        /* Remove the bottom border on the jumbotron for visual effect */
+        .jumbotron {
+          border-bottom: 0;
+        }
+      }
+    </style>
   </head>
+
+
   <body>
     <div class="container">
-      <div class="row">
-        <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">Pete's Pet Shop</h1>
-          <hr/>
-          <br/>
+      <div class="header">
+        <ul class="nav nav-pills pull-right" role="tablist">
+          <li role="presentation">
+            <a href="https://sorasystem.weebly.com/blockchainteam.html">About</a>
+          </li>
+        </ul>
+        <h3 class="text-muted"> <a href="/">SORA Lending</a></h3>
+      </div>
+
+      <div class="row marketing">
+        <style>
+          img.img-circle {
+              background: #fff;
+              width: 85px;
+          }
+          .users .col-md-4{
+            text-align: center;
+          }
+        </style>
+
+        <div class="row" >
+          <div class="col-md-8" style="float:none; margin: 0 auto; background-color: #ddd; padding-top:40px;padding-bottom:40px;">
+            <div class="row">
+              <div class="col-md-6" style="font-size: 18px; font-weight: bold;">
+                Signin
+              </div>
+            </div>
+
+            <hr/>
+
+            <div class="row users" style=>
+              <div class="col-md-8" style="margin: 0 auto; float:none;">
+                <form class="navbar-form " role="">
+                  <label>Your wallet address</label></br>
+                  <div class="form-group">
+                    <input type="text" class="form-control your_address" placeholder="Your address">
+                  </div></br>
+                  <label>Password</label></br>
+                  <div class="form-group">
+                    <input type="password" class="form-control password" placeholder="password">
+                  </div></br>
+                  <!-- <a href="/start-round.html" class="btn btn-success">Join</a> -->
+                  <button class="btn btn-success btn_join">Join</button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="petsRow" class="row">
-        <!-- PETS LOAD HERE -->
+      <div class="footer">
+        <p>&copy; SORA Team @ Blockchain Hackathon 2017</p>
       </div>
-    </div>
+  </div> 
+  <!-- end of container -->
 
-    <div id="petTemplate" style="display: none;">
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="panel panel-default panel-pet">
-          <div class="panel-heading">
-            <h3 class="panel-title">Scrappy</h3>
-          </div>
-          <div class="panel-body">
-            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
-            <br/><br/>
-            <strong>Breed</strong>: <span class="pet-breed">Golden Retriever</span><br/>
-            <strong>Age</strong>: <span class="pet-age">3</span><br/>
-            <strong>Location</strong>: <span class="pet-location">Warren, MI</span><br/><br/>
-            <button class="btn btn-default btn-adopt" type="button" data-id="0">Adopt</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/web3.min.js"></script>
-    <script src="js/truffle-contract.js"></script>
-    <script src="js/app.js"></script>
+  <script>
+    $('.btn_join').click(function(){
+      var your_address = $('.your_address').val();
+      var pass = $('.password').val();
+      if(your_address == ''){
+        alert('Your address not null!');
+        return false;
+      }else if(pass == ''){
+        alert('Your password not null!');
+        return false;
+      }
+      check_account(your_address, pass);
+      // alert(your_address + ' - ' + pass);
+      return false;
+    });
+
+    function check_account(your_address, pass){
+      if(your_address == '0x627306090abab3a6e1400e9345bc60c78a8bef57'){
+        //set cookies
+        document.cookie = "your_address="+your_address;
+        window.location = "/start-round.html";
+        return false;
+      }
+    }
+  </script>
   </body>
 </html>
