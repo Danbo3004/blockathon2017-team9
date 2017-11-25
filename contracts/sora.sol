@@ -45,6 +45,8 @@ contract Sora is mortal {
 
 	mapping(uint => uint) donationSum;
 
+	mapping(uint => uint) bidSum;
+
 	mapping(address => bool) withdrawals;
 
 	// number of donor in the system
@@ -70,7 +72,7 @@ contract Sora is mortal {
 		numDonors = 0;
 		currentRound = 0;
 		//donationSum[currentRound] = 0;
-		minBidDonor = Donor(0x00,0,0);
+		minBidDonor = Donor(0x00, 100 ether, 0);
 	}
 
 	function getCurrentRound() returns (uint) {
@@ -88,30 +90,44 @@ contract Sora is mortal {
 		return donationSum[round];
 	}
 
+	function getBidSumOfRound(uint round) returns (uint) {
+		return bidSum[round];
+	}
+
 	function isWithdrawal(address user) returns (bool) {
 		return withdrawals[user];
 	}
 
-	function depositFund() public payable {
+	function depositFund(uint bidAmount) public payable {
 		// require(msgValue <= amountDonation);
 		// require(currentRound < maxDonors);
 		
+		// this is to make sure that the person who already withdraw money can't set bidding less than standard amount anymore
+		if(withdrawals[msg.sender] == true) {
+			bidAmount = amountDonation + 1;
+		}
+
+		if(bidAmount >= amountDonation) {
+			bidAmount = amountDonation;
+		}
+
 		// to mark if the sender already deposited
 		depositList[currentRound][msg.sender] = true;
 
 		numDonors++;
 
 		donationSum[currentRound] += msg.value;
+		bidSum[currentRound] += bidAmount;
 
 		donors[currentRound][numDonors] = Donor(msg.sender, msg.value, numDonors);
 
 		NewDonor(msg.sender, msg.value, fee);
 		
 		// check if this is the last round
-		if(currentRound + 1 != maxDonors){
+		if(currentRound + 1 != maxDonors) {
 			//set min Dornor
-			if(msg.value <= minBidDonor.value) {
-				minBidDonor = Donor(msg.sender,  msg.value, numDonors);
+			if(bidAmount <= minBidDonor.value) {
+				minBidDonor = Donor(msg.sender,  bidAmount, numDonors);
 			}
 			
 			//this is to check whether to end round and start next round
@@ -135,23 +151,23 @@ contract Sora is mortal {
 
 	// send payment back to the beneficially
 	function calculateAndSendCashForWinner() {
-		uint redudant;
+		uint redudantAmount;
 
-		minBidDonor.addr.transfer(minBidDonor.value*maxDonors);
+		minBidDonor.addr.transfer(bidSum[currentRound]);
 		withdrawals[minBidDonor.addr] = true;
 
 		for(uint i=1; i<=maxDonors;i++){
 			if(i != minBidDonor.index){
-				redudant = donors[currentRound][i].value - minBidDonor.value;
-				donors[currentRound][i].addr.transfer(redudant);
+				redudantAmount = (donationSum[currentRound] - bidSum[currentRound]) / (maxDonors - 1);
+				donors[currentRound][i].addr.transfer(redudantAmount);
 			}
 		}
-
 	}
 
 	function endRoundAndStartNextRound() internal {
-		minBidDonor = Donor(0x00,0,0);
+		minBidDonor = Donor(0x00, 100 ether, 0);
 		donationSum[currentRound] = 0;
+		bidSum[currentRound] = 0;
 		currentRound++;
 		numDonors = 0;
 		RoundEnded(donationSum[currentRound]);
@@ -159,6 +175,14 @@ contract Sora is mortal {
 
 	function getMaxDonors() returns(uint) {
 		return maxDonors;
+	}
+
+	function getMinAddress() returns (address) {
+		return minBidDonor.addr;
+	}
+
+	function getNumDonors() returns(uint) {
+		return numDonors;
 	}
 
 	function getAmountDonation() returns(uint) {
