@@ -34,6 +34,8 @@ contract Sora is mortal {
 		uint index;
     }
 
+
+
 	uint public startTimestamp;
     uint public endTimestamp;
 	// duration of a round
@@ -46,14 +48,20 @@ contract Sora is mortal {
     uint public fee;
 	uint public amountDonation;
 
-	uint[] public donationSum;
+	mapping(uint => uint) donationSum;
+
+	mapping(address => bool) withdrawals;
 
 	// number of donor in the system
 	uint public numDonors;
 	// current round
 	uint public currentRound;
 	// current donors
-	Donor[][] public donors;
+	//Donor[][] public donors;
+
+	mapping(uint => mapping(uint => Donor)) donors;
+	
+
 	Donor minBidDonor;
 	
 	//mapping (address => mapping (uint => uint)) donorsHistory;
@@ -83,65 +91,75 @@ contract Sora is mortal {
 		return depositList[round][user];
 	}
 
-	function() payable {
-		depositFund(msg.value, msg.sender);
-		//test(msg.value, msg.sender);
+	function getSumDonationOfRound(uint round) returns (uint) {
+		return donationSum[round];
 	}
-	
-	function depositFund(uint msgValue, address msgSender) payable {
+
+	function isWithdrawal(address user) returns (bool) {
+		return withdrawals[user];
+	}
+
+	function depositFund() public payable {
 		// require(msgValue <= amountDonation);
 		// require(currentRound < maxDonors);
 		
 		// to mark if the sender already deposited
-		depositList[currentRound][msgSender] = true;
+		depositList[currentRound][msg.sender] = true;
 
 		numDonors++;
-		uint amountAfterFee = msgValue - fee;
 
-		donationSum[currentRound] += amountAfterFee;
+		donationSum[currentRound] += msg.value;
 
-		donors[currentRound][numDonors] = Donor(msgSender, msgValue, numDonors);
+		donors[currentRound][numDonors] = Donor(msg.sender, msg.value, numDonors);
 
-		NewDonor(msgSender, amountAfterFee, fee);
+		NewDonor(msg.sender, msg.value, fee);
 		
-		//set min Dornor
-		if(msgValue <= minBidDonor.value){
-			minBidDonor = Donor(msgSender, msgValue, numDonors);
+		// check if this is the last round
+		if(currentRound + 1 != maxDonors){
+			//set min Dornor
+			if(msg.value <= minBidDonor.value) {
+				minBidDonor = Donor(msg.sender,  msg.value, numDonors);
+			}
+			
+			//this is to check whether to end round and start next round
+			if(maxDonors == numDonors) {
+				calculateAndSendCashForWinner();
+				endRoundAndStartNextRound();
+			}
+		}else {
+			if(maxDonors == numDonors) {
+				// send back all payment in the final round
+				for (uint index = 0; index < maxDonors; index++) {
+					if(withdrawals[donors[0][index].addr] == false) {
+						// send all fund
+						donors[0][index].addr.transfer(donationSum[currentRound]);
+					}
+				}
+			}
 		}
 		
-		// this is to check whether to end round and start next round
-		currentRound++;
-		if(maxDonors == numDonors) {
-			calculateAndSendCashForWinner();
-			endRoundAndStartNextRound();
-		}
 	}
 
 	// send payment back to the beneficially
 	function calculateAndSendCashForWinner() {
-		uint redundantAmount = 0;
+		uint redudant;
 
-		minBidDonor.addr.transfer(minBidDonor.value);
-		
-		redundantAmount = (donationSum[currentRound] - minBidDonor.value)/(numDonors - 1);
+		minBidDonor.addr.transfer(minBidDonor.value*maxDonors);
+		withdrawals[minBidDonor.addr] = true;
 
-		for(uint i=1; i<=donors[currentRound].length;i++){
+		for(uint i=1; i<=maxDonors;i++){
 			if(i != minBidDonor.index){
-				donors[currentRound][i].addr.transfer(donors[currentRound][i].value);
+				redudant = donors[currentRound][i].value - minBidDonor.value;
+				donors[currentRound][i].addr.transfer(redudant);
 			}
 		}
+
 	}
 
 	function endRoundAndStartNextRound() internal {
 		minBidDonor = Donor(0x00,0,0);
-		if((currentRound + 1) < numDonors) {
-			currentRound++;
-		}else {
-			currentRound = 0;
-		}
-
+		currentRound++;
 		numDonors = 0;
-
 		RoundEnded(donationSum[currentRound]);
 	}
 
