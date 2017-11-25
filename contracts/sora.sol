@@ -4,7 +4,6 @@ pragma solidity ^0.4.4;
 contract owned {
 
     address public owner;
-    mapping (address => uint256) public balanceOf;
 
     event ContractOwnershipTransferred(address newOwner);
 
@@ -41,12 +40,14 @@ contract Sora is mortal {
 	uint public numDonors;
 	uint public currentRound;
 	address[][] public donors;
+	uint[] public valueOfDonors;
 	mapping (address => mapping (uint => uint)) donorsHistory;
 
 	address public beneficiary;
 
 	event NewDonor(address _donor, uint _donationAfterFee, uint _fee);
 	event RoundEnded(uint _donationSum);
+    mapping (address => uint256) public balanceOf;
 
 	function Sora() {
 		fee = 0 ether;
@@ -61,6 +62,7 @@ contract Sora is mortal {
 	function depositFund() external payable {
 		require(msg.value <= amountDonation);
 		uint amountAfterFee = msg.value - fee;
+		valueOfDonors.push(amountAfterFee);
 		donationSum[currentRound] += amountAfterFee;
 
 		donors[currentRound][numDonors++] = msg.sender;
@@ -71,13 +73,14 @@ contract Sora is mortal {
 
 		// this is to check whether to end round and start next round
 		if(maxDonors == (numDonors + 1)) {
-			calculateAndSendCashForWinner();
+			calculateAndSendCashForWinner(valueOfDonors);
 			endRoundAndStartNextRound();
 		}
 	}
 
 	// send payment back to the beneficially
-	function calculateAndSendCashForWinner() {
+	function calculateAndSendCashForWinner(uint[] valueOfDonors) {
+        getMinNumber(valueOfDonors);
 		// uint minValue = donorsHistory[][currentRound];
 		// address winner;
 		// //compare to decide who is the winner of the current Round
@@ -96,13 +99,22 @@ contract Sora is mortal {
 		return donationSum[round];
 	}
 
-  function transfer(address _from, address _to, uint256 _value) returns(bool success){
-    require(balanceOf[_from] >= _value);
-    require(msg.value > 0);
+    function transfer(address _from, address _to, uint256 _value) payable public returns(bool success){
+        require(balanceOf[_from] >= _value);
+        require(msg.value > 0);
 
-    balanceOf[_from] -= _value;
-    balanceOf[_to] += _value;
-    return true;
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        return true;
+    }
+
+  function getMinNumber(uint[] numbers) internal returns(uint){
+    var minNum = uint(0);
+    for (uint i=0;i<numbers.length;i++){
+      if (minNum > numbers[i]){
+        minNum = numbers[i];
+      }
+    }
   }
 
 }
