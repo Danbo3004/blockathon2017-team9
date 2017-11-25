@@ -1,4 +1,3 @@
-// https://github.com/cillionaire/cillionaire2
 pragma solidity ^0.4.17;
 
 contract owned {
