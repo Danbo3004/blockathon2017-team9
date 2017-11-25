@@ -28,26 +28,38 @@ contract mortal is owned {
 }
 
 contract Sora is mortal {
+	struct Donor {
+        address addr;
+        uint value;
+		uint index;
+    }
 
 	uint public startTimestamp;
     uint public endTimestamp;
-    uint public maxDonors;
+	// duration of a round
     uint public duration;
-    uint public donation;
+
+
+
+	// length of max donors, = 3
+    uint public maxDonors;
     uint public fee;
 	uint public amountDonation;
-	uint[] public donationSum;
-	uint public numDonors;
-	uint public currentRound;
-	address[][] public donors;
-	uint[] public valueOfDonors;
-	mapping (address => mapping (uint => uint)) donorsHistory;
 
-	address public beneficiary;
+	uint[] public donationSum;
+
+	// number of donor in the system
+	uint public numDonors;
+	// current round
+	uint public currentRound;
+	// current donors
+	Donor[][] public donors;
+	Donor minBidDonor;
+	
+	//mapping (address => mapping (uint => uint)) donorsHistory;
 
 	event NewDonor(address _donor, uint _donationAfterFee, uint _fee);
 	event RoundEnded(uint _donationSum);
-    mapping (address => uint256) public balanceOf;
 
 	function Sora() {
 		fee = 0 ether;
@@ -57,49 +69,79 @@ contract Sora is mortal {
 		numDonors = 0;
 		currentRound = 0;
 		//donationSum[currentRound] = 0;
+		minBidDonor = Donor(0x00,0,0);
 	}
 
-	function getMaxDonors() returns(uint) {
-		return maxDonors;
+	function getCurrentRound() returns (uint) {
+		return currentRound;
 	}
 
-	function getAmountDonation() returns(uint) {
-		return amountDonation;
- 	}
+	mapping(uint => mapping(address => bool)) depositList;
 
-	function depositFund() external payable {
-		require(msg.value <= amountDonation);
-		uint amountAfterFee = msg.value - fee;
-		valueOfDonors.push(amountAfterFee);
+
+	function isDeposited(address user, uint round) returns (bool) {
+		return depositList[round][user];
+	}
+
+	function() payable {
+		depositFund(msg.value, msg.sender);
+		//test(msg.value, msg.sender);
+	}
+	
+	function depositFund(uint msgValue, address msgSender) payable {
+		// require(msgValue <= amountDonation);
+		// require(currentRound < maxDonors);
+		
+		// to mark if the sender already deposited
+		depositList[currentRound][msgSender] = true;
+
+		numDonors++;
+		uint amountAfterFee = msgValue - fee;
+
 		donationSum[currentRound] += amountAfterFee;
 
-		donors[currentRound][numDonors++] = msg.sender;
+		donors[currentRound][numDonors] = Donor(msgSender, msgValue, numDonors);
 
-		donorsHistory[msg.sender][currentRound] = msg.value;
-
-		NewDonor(msg.sender, amountAfterFee, fee);
-
+		NewDonor(msgSender, amountAfterFee, fee);
+		
+		//set min Dornor
+		if(msgValue <= minBidDonor.value){
+			minBidDonor = Donor(msgSender, msgValue, numDonors);
+		}
+		
 		// this is to check whether to end round and start next round
-		if(maxDonors == (numDonors + 1)) {
-			calculateAndSendCashForWinner(valueOfDonors);
+		currentRound++;
+		if(maxDonors == numDonors) {
+			calculateAndSendCashForWinner();
 			endRoundAndStartNextRound();
 		}
 	}
 
 	// send payment back to the beneficially
-	function calculateAndSendCashForWinner(uint[] valueOfDonors) {
-        getMinNumber(valueOfDonors);
-		// uint minValue = donorsHistory[][currentRound];
-		// address winner;
-		// //compare to decide who is the winner of the current Round
-		// for(uint i=0;i<maxDonors;i++) {
+	function calculateAndSendCashForWinner() {
+		uint redundantAmount = 0;
 
-		// }
+		minBidDonor.addr.transfer(minBidDonor.value);
+		
+		redundantAmount = (donationSum[currentRound] - minBidDonor.value)/(numDonors - 1);
+
+		for(uint i=1; i<=donors[currentRound].length;i++){
+			if(i != minBidDonor.index){
+				donors[currentRound][i].addr.transfer(donors[currentRound][i].value);
+			}
+		}
 	}
 
 	function endRoundAndStartNextRound() internal {
-		currentRound++;
+		minBidDonor = Donor(0x00,0,0);
+		if((currentRound + 1) < numDonors) {
+			currentRound++;
+		}else {
+			currentRound = 0;
+		}
+
 		numDonors = 0;
+
 		RoundEnded(donationSum[currentRound]);
 	}
 
@@ -107,22 +149,12 @@ contract Sora is mortal {
 		return donationSum[round];
 	}
 
-    function transfer(address _from, address _to, uint256 _value) payable public returns(bool success){
-        require(balanceOf[_from] >= _value);
-        require(msg.value > 0);
+		function getMaxDonors() returns(uint) {
+		return maxDonors;
+	}
 
-        balanceOf[_from] -= _value;
-        balanceOf[_to] += _value;
-        return true;
-    }
-
-  function getMinNumber(uint[] numbers) internal returns(uint){
-    var minNum = uint(0);
-    for (uint i=0;i<numbers.length;i++){
-      if (minNum > numbers[i]) {
-        minNum = numbers[i];
-      }
-    }
-  }
+	function getAmountDonation() returns(uint) {
+		return amountDonation;
+ 	}
 
 }
