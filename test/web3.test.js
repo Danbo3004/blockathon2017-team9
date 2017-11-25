@@ -3,14 +3,14 @@ var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 var soraABI = require('../build/contracts/Sora.json').abi;
 
 
-var soraContractAddress = '0xddc458e7db2f737720978176864b451d823765e2';
+var soraContractAddress = '0xebe56d9edeb58e69ed41c7b8799418ee935e31fe';
 
 var testWallet = '0x003AEd4ACe62d94dBD1cB19eaC763E1F2Cf07227';
 
 
-var testWallet0 = '0x00a329c0648769A73afAc7F9381E08FB43dBEA72';
-var testWallet1 = '0x00A7482EAFc4318822019e30D4E6024Fe6f8bfd4';
-var testWallet2 = '0x00e68a9f47eC93F2D75Ef3473bB09e6B5d5654e4';
+var hui1 = '0x007F9921DBb5c381Ffe9993DF50137Dc643de36C';
+var hui2 = '0x003524F296Dab42c0421f30F67F69Ee46735Ba12';
+var hui3 = '0x00095A47662e1c9F8dc77Eca92d67882dB0aCa92';
 
 // init SoraContract Object
 var SoraContract = new web3.eth.Contract(
@@ -25,12 +25,10 @@ var SoraContract = new web3.eth.Contract(
 
 describe('Running web3 test', function () {
   this.timeout(25000);
-  it('Deposit Ether', function (done) {
-    //SoraContract.methods.depositFund()
+  it.skip('Deposit Ether', function (done) {
     var transactionObj = {
-      from: testWallet2,
-      //to: soraContractAddress,
-      value: 9 * 1000000000000000000
+      from: hui3,
+      value: 10 * 1000000000000000000
     };
     SoraContract.methods.depositFund()
       .send(transactionObj).then(function (err, result) {
@@ -39,8 +37,8 @@ describe('Running web3 test', function () {
       });
   });
 
-  it('Is Deposited of testWallet0', function (done) {
-    SoraContract.methods.isDeposited(testWallet2, 0)
+  it('Is Deposited of hui1', function (done) {
+    SoraContract.methods.isDeposited(hui1, 0)
       .call()
       .then(result => {
         console.log(result);
@@ -55,10 +53,11 @@ describe('Running web3 test', function () {
   });
 
   it('Check current Sum of round', function (done) {
-    SoraContract.methods.getSumDonationOfRound(1)
+    const roundNumber = 0;
+    SoraContract.methods.getSumDonationOfRound(0)
       .call()
       .then(result => {
-        console.log(`Sum of this round = ${result/1000000000000000000}`);
+        console.log(`(Sum of Round ${roundNumber}) = ${result/1000000000000000000}`);
         done();
       })
       .catch(err => {
@@ -73,7 +72,7 @@ describe('Running web3 test', function () {
     SoraContract.methods.getCurrentRound()
       .call()
       .then(result => {
-        console.log(`Round = ${result}`);
+        console.log(`Current Round = ${result}`);
         done();
       })
       .catch(err => {
@@ -83,7 +82,5 @@ describe('Running web3 test', function () {
       });
 
   });
-
-
 
 });

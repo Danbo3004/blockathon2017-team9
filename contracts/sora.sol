@@ -33,14 +33,10 @@ contract Sora is mortal {
 		uint index;
     }
 
-
-
 	uint public startTimestamp;
     uint public endTimestamp;
 	// duration of a round
     uint public duration;
-
-
 
 	// length of max donors, = 3
     uint public maxDonors;
@@ -55,8 +51,6 @@ contract Sora is mortal {
 	uint public numDonors;
 	// current round
 	uint public currentRound;
-	// current donors
-	//Donor[][] public donors;
 
 	mapping(uint => mapping(uint => Donor)) donors;
 	
@@ -157,16 +151,13 @@ contract Sora is mortal {
 
 	function endRoundAndStartNextRound() internal {
 		minBidDonor = Donor(0x00,0,0);
+		donationSum[currentRound] = 0;
 		currentRound++;
 		numDonors = 0;
 		RoundEnded(donationSum[currentRound]);
 	}
 
-	function getCurrentFund(uint round) returns(uint) {
-		return donationSum[round];
-	}
-
-		function getMaxDonors() returns(uint) {
+	function getMaxDonors() returns(uint) {
 		return maxDonors;
 	}
 
