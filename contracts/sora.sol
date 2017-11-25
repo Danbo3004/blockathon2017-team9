@@ -40,6 +40,8 @@ contract Sora is mortal {
 	uint public numDonors;
 	uint public currentRound;
 	address[][] public donors;
+	mapping (address => mapping (uint => uint)) donorsHistory;
+
 	address public beneficiary;
 
 	event NewDonor(address _donor, uint _donationAfterFee, uint _fee);
@@ -61,12 +63,26 @@ contract Sora is mortal {
 		donationSum[currentRound] += amountAfterFee;
 
 		donors[currentRound][numDonors++] = msg.sender;
+
+		donorsHistory[msg.sender][currentRound] = msg.value;
+
 		NewDonor(msg.sender, amountAfterFee, fee);
 
 		// this is to check whether to end round and start next round
 		if(maxDonors == (numDonors + 1)) {
+			calculateAndSendCashForWinner();
 			endRoundAndStartNextRound();
 		}
+	}
+
+	// send payment back to the beneficialry
+	function calculateAndSendCashForWinner() {
+		// uint minValue = donorsHistory[][currentRound];
+		// address winner;
+		// //compare to decide who is the winner of the current Round
+		// for(uint i=0;i<maxDonors;i++) {
+
+		// }
 	}
 
 	function endRoundAndStartNextRound() internal {
