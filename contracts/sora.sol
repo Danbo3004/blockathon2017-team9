@@ -2,18 +2,19 @@
 pragma solidity ^0.4.4;
 
 contract owned {
-    
+
     address public owner;
-    
+    mapping (address => uint256) public balanceOf;
+
     event ContractOwnershipTransferred(address newOwner);
-    
+
     function owned() { owner = msg.sender; }
-    
-    modifier onlyOwner { 
-        require(msg.sender == owner); 
-        _; 
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
     }
-    
+
     function setContractOwner(address newOwner) external onlyOwner {
         owner = newOwner;
         ContractOwnershipTransferred(newOwner);
@@ -21,7 +22,7 @@ contract owned {
 }
 
 contract mortal is owned {
-    
+
     function kill() onlyOwner {
         selfdestruct(owner);
     }
@@ -75,7 +76,7 @@ contract Sora is mortal {
 		}
 	}
 
-	// send payment back to the beneficialry
+	// send payment back to the beneficially
 	function calculateAndSendCashForWinner() {
 		// uint minValue = donorsHistory[][currentRound];
 		// address winner;
@@ -94,4 +95,14 @@ contract Sora is mortal {
 	function getCurrentFund(uint round) returns(uint) {
 		return donationSum[round];
 	}
+
+  function transfer(address _from, address _to, uint256 _value) returns(bool success){
+    require(balanceOf[_from] >= _value);
+    require(msg.value > 0);
+
+    balanceOf[_from] -= _value;
+    balanceOf[_to] += _value;
+    return true;
+  }
+
 }
