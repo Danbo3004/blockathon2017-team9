@@ -1,5 +1,5 @@
 // https://github.com/cillionaire/cillionaire2
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.4;
 
 contract owned {
 
@@ -29,6 +29,11 @@ contract mortal is owned {
 
 contract Sora is mortal {
 
+    struct Donor {
+        address addr;
+        uint donationValue;
+    }
+
 	uint public startTimestamp;
     uint public endTimestamp;
     uint public maxDonors;
@@ -39,8 +44,8 @@ contract Sora is mortal {
 	uint[] public donationSum;
 	uint public numDonors;
 	uint public currentRound;
-	address[][] public donors;
-	uint[] public valueOfDonors;
+	Donor[][] public donors;
+	Donor[] public groupDonors;
 	mapping (address => mapping (uint => uint)) donorsHistory;
 
 	address public beneficiary;
@@ -62,25 +67,28 @@ contract Sora is mortal {
 	function depositFund() external payable {
 		require(msg.value <= amountDonation);
 		uint amountAfterFee = msg.value - fee;
-		valueOfDonors.push(amountAfterFee);
+		groupDonors.push(Donor(msg.sender, msg.value));
 		donationSum[currentRound] += amountAfterFee;
 
-		donors[currentRound][numDonors++] = msg.sender;
+		donors[currentRound][numDonors++] = Donor(msg.sender, msg.value);
 
 		donorsHistory[msg.sender][currentRound] = msg.value;
 
 		NewDonor(msg.sender, amountAfterFee, fee);
 
 		// this is to check whether to end round and start next round
-		if(maxDonors == (numDonors + 1)) {
-			calculateAndSendCashForWinner(valueOfDonors);
+		if(maxDonors == numDonors) {
+
+			calculateAndSendCashForWinner(groupDonors);
 			endRoundAndStartNextRound();
 		}
 	}
 
 	// send payment back to the beneficially
-	function calculateAndSendCashForWinner(uint[] valueOfDonors) {
-        getMinNumber(valueOfDonors);
+	function calculateAndSendCashForWinner(Donor[] _donors) {
+	    Donor memory lowestBidDonor;
+      lowestBidDonor = getMinDonor(_donors);
+
 		// uint minValue = donorsHistory[][currentRound];
 		// address winner;
 		// //compare to decide who is the winner of the current Round
@@ -108,13 +116,14 @@ contract Sora is mortal {
         return true;
     }
 
-  function getMinNumber(uint[] numbers) internal returns(uint){
-    var minNum = uint(0);
-    for (uint i=0;i<numbers.length;i++){
-      if (minNum > numbers[i]){
-        minNum = numbers[i];
+  function getMinDonor(Donor[] _donors) internal returns(Donor){
+    Donor memory donorWithMinValue = _donors[0];
+    for (uint i=0;i<_donors.length;i++){
+      if (donorWithMinValue.donationValue > _donors[i].donationValue){
+        donorWithMinValue = _donors[i];
       }
     }
+    return donorWithMinValue;
   }
 
 }
